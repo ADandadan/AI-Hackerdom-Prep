@@ -11,9 +11,15 @@ First, run the development server:
 pnpm dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Then, run the convex server:
+```bash
+pnpx convex dev
+pnpx convex dashboard
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result as well as [http://localhost:6790](http://localhost:6790)
+
+You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file. You can also add functions to convex in `app/`.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
