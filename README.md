@@ -8,10 +8,23 @@ Tech Stack:
 First, run the development server:
 
 ```bash
+npm dev
+```
+
+or 
+
+```bash
 pnpm dev
 ```
 
 Then, run the convex server:
+```bash
+npx convex dev
+npx convex dashboard
+```
+
+or
+
 ```bash
 pnpx convex dev
 pnpx convex dashboard
