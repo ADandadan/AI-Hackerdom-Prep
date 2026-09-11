@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react";
+import { useUser } from "@clerk/nextjs";
 
 // Placeholder type — will match your Convex schema, e.g.:
 // announcements: defineTable({ title: v.string(), body: v.string(), createdAt: v.number() })
@@ -11,7 +12,27 @@ type Announcement = {
     createdAt: number;
 };
 
+/*
+publicMetadata.role assigned like this: (JSON)
+{
+   "role": "admin"
+}
+*/
+
+
 export default function Admin() {
+    const { user } = useUser();
+
+    if (!user) {
+        return <div>You must be signed in.</div>;
+    }
+
+    const role = user.publicMetadata.role;
+
+    if (role !== "admin") {
+        return <div>error, no access</div>;
+    }
+
     const [activeTab, setActiveTab] = useState("announcements");
 
     // TEMP local state — replace with:
