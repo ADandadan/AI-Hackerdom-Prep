@@ -8,7 +8,7 @@ Tech Stack:
 First, run the development server:
 
 ```bash
-npm dev
+npm run dev
 ```
 
 or 
