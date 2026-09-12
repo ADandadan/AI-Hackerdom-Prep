@@ -1,24 +1,27 @@
-import Image from "next/image";
+"use client"
+
+import { useQuery } from "convex/react";
+import { api } from "../convex/_generated/api";
 
 export default function Home() {
-  const announcements = [
-    {
-      header: "Headline",
-      body: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quod."
-    }
-  ]
+  const announcements = useQuery(api.announcements.list);
+
   return (
     <div className="mx-4">
       <h1 className="font-bold text-2xl">Announcements</h1>
       <div className="flex flex-col gap-4">
-        <div>
-          {announcements.map((announcement, index) => (
-            <div key={index} className="border rounded-lg p-4">
-              <h2 className="font-bold text-lg">{announcement.header}</h2>
-              <p>{announcement.body}</p>
-            </div>
-          ))}
-        </div>
+        {announcements === undefined && (
+          <p className="text-gray-500 text-sm">Loading announcements...</p>
+        )}
+        {announcements?.length === 0 && (
+          <p className="text-gray-500 text-sm">No announcements yet.</p>
+        )}
+        {announcements?.map((announcement) => (
+          <div key={announcement._id} className="border rounded-lg p-4">
+            <h2 className="font-bold text-lg">{announcement.title}</h2>
+            <p>{announcement.body}</p>
+          </div>
+        ))}
       </div>
     </div>
   );

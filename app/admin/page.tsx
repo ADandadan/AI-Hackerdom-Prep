@@ -1,57 +1,40 @@
 "use client"
 
 import { useState } from "react";
-
-// Placeholder type — will match your Convex schema, e.g.:
-// announcements: defineTable({ title: v.string(), body: v.string(), createdAt: v.number() })
-type Announcement = {
-    id: string;
-    title: string;
-    body: string;
-    createdAt: number;
-};
+import { useMutation, useQuery } from "convex/react";
+import { api } from "../../convex/_generated/api";
+import type { Id } from "../../convex/_generated/dataModel";
 
 export default function Admin() {
     const [activeTab, setActiveTab] = useState("announcements");
 
-    // TEMP local state — replace with:
-    // const announcements = useQuery(api.announcements.list);
-    const [announcements, setAnnouncements] = useState<Announcement[]>([
-        {
-            id: "1",
-            title: "Welcome to the new dashboard",
-            body: "This is a sample announcement. Add your own below.",
-            createdAt: Date.now(),
-        },
-    ]);
+    // "Previous announcement" — Query -> Convex -> Result
+    const announcements = useQuery(api.announcements.list);
+
+    // "Add announcement" — Mutation/Addition -> Convex
+    const createAnnouncement = useMutation(api.announcements.create);
+    const deleteAnnouncement = useMutation(api.announcements.remove);
 
     const [title, setTitle] = useState("");
     const [body, setBody] = useState("");
+    const [submitting, setSubmitting] = useState(false);
 
-    // TEMP local submit — replace with:
-    // const createAnnouncement = useMutation(api.announcements.create);
-    // await createAnnouncement({ title, body });
-    function handleAddAnnouncement(e: React.FormEvent) {
+    async function handleAddAnnouncement(e: React.FormEvent) {
         e.preventDefault();
         if (!title.trim() || !body.trim()) return;
 
-        const newAnnouncement: Announcement = {
-            id: crypto.randomUUID(),
-            title: title.trim(),
-            body: body.trim(),
-            createdAt: Date.now(),
-        };
-
-        setAnnouncements((prev) => [newAnnouncement, ...prev]);
-        setTitle("");
-        setBody("");
+        setSubmitting(true);
+        try {
+            await createAnnouncement({ title: title.trim(), body: body.trim() });
+            setTitle("");
+            setBody("");
+        } finally {
+            setSubmitting(false);
+        }
     }
 
-    // TEMP local delete — replace with:
-    // const deleteAnnouncement = useMutation(api.announcements.remove);
-    // await deleteAnnouncement({ id });
-    function handleDelete(id: string) {
-        setAnnouncements((prev) => prev.filter((a) => a.id !== id));
+    async function handleDelete(id: Id<"announcements">) {
+        await deleteAnnouncement({ id });
     }
 
     return (
@@ -87,26 +70,30 @@ export default function Admin() {
                             />
                             <button
                                 type="submit"
-                                className="self-start bg-black text-white text-sm font-medium px-4 py-2 rounded hover:bg-gray-800 hover:cursor-pointer"
+                                disabled={submitting}
+                                className="self-start bg-black text-white text-sm font-medium px-4 py-2 rounded hover:bg-gray-800 hover:cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                Post Announcement
+                                {submitting ? "Posting..." : "Post Announcement"}
                             </button>
                         </form>
 
-                        {/* Announcements list */}
+                        {/* Previous announcements list */}
                         <div className="flex flex-col gap-3">
-                            {announcements.length === 0 && (
+                            {announcements === undefined && (
+                                <p className="text-gray-500 text-sm">Loading announcements...</p>
+                            )}
+                            {announcements?.length === 0 && (
                                 <p className="text-gray-500 text-sm">No announcements yet.</p>
                             )}
-                            {announcements.map((a) => (
+                            {announcements?.map((a) => (
                                 <div
-                                    key={a.id}
+                                    key={a._id}
                                     className="p-4 bg-white border border-gray-300 rounded-lg flex flex-col gap-1"
                                 >
                                     <div className="flex justify-between items-start">
                                         <h3 className="font-semibold text-base">{a.title}</h3>
                                         <button
-                                            onClick={() => handleDelete(a.id)}
+                                            onClick={() => handleDelete(a._id)}
                                             className="text-xs text-red-500 hover:underline hover:cursor-pointer"
                                         >
                                             Delete
